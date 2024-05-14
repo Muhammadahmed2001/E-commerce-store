@@ -9,7 +9,6 @@ function Order() {
     <div>
       <Layout>
         Order
-        
       </Layout>
     </div>
   );
