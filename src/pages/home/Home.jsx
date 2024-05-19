@@ -7,11 +7,20 @@ import Filter from "../../components/filter/Filter.jsx";
 import ProductCard from "../../components/productCard/ProductCard.jsx";
 import Track from "../../components/track/Track.jsx";
 import Testimonial from "../../components/testimonial/Testimonial.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, deleteFromCart } from "../../redux/cartSlice.jsx";
 
 function Home() {
-  const contex = useContext(myContext);
-  console.log(contex);
+  const dispatch = useDispatch();
+  const cartItem = useSelector((state) => state.cart);
 
+  const addCart = () => {
+    dispatch(addToCart("shirt"));
+  };
+
+  const deleteCart = () => {
+    dispatch(deleteFromCart("shirt"));
+  };
   return (
     <Layout>
       <HeroSection />
