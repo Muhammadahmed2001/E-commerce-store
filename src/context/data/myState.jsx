@@ -45,6 +45,9 @@ function MyState(props) {
       const productRef = collection(fireDB, "products")
       await addDoc(productRef, products)
       toast.success("Add Product Successfully")
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 1000);
       getProductData()
       setLoading(false)
     } catch (err) {
@@ -70,7 +73,7 @@ function MyState(props) {
         QuerySnapshot.forEach((doc) => {
           productArray.push({ ...doc.data(), id: doc.id })
         })
-        setProducts(productArray)
+        setProduct(productArray)
         setLoading(false)
       })
 
