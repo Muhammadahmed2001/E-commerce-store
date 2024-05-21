@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import myContext from "./myContext";
-import { QuerySnapshot, Timestamp, addDoc, collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { QuerySnapshot, Timestamp, addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { fireDB } from "../../firebase/FirebaseConfig";
 
@@ -37,20 +37,21 @@ function MyState(props) {
   });
 
   const addProduct = async () => {
+    setLoading(false)
     if (products.title == null || products.price == null || products.imageUrl == null || products.category == null || products.discription == null) {
       return toast.error("All fields are required")
     }
-    setLoading(true)
     try {
       const productRef = collection(fireDB, "products")
+      setLoading(true)
       await addDoc(productRef, products)
       toast.success("Add Product Successfully")
+      getProductData()
       setTimeout(() => {
         window.location.href = "/dashboard"
-      }, 1000);
-      getProductData()
-      setLoading(false)
-    } catch (err) {
+      }, 2000);
+    }
+    catch (err) {
       setLoading(false)
       console.log(err)
     }
@@ -91,10 +92,44 @@ function MyState(props) {
     getProductData()
   }, [])
 
+
+  const edithundle = (item) => {
+    setProducts(item)
+  }
+
+  const updateProduct = async (item) => {
+    try {
+      await setDoc(doc(fireDB, "products", products.id), products)
+      toast.success("Products Update Successfully")
+      getProductData()
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 2000);
+      
+
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+
+  const deleteProduct = async (item) => {
+    try {
+      await deleteDoc(doc(fireDB, "products", item.id))
+      toast.success("Products Delete Successfully")
+      getProductData()
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
   return (
     <myContext.Provider value={{
       mode, toggleMode, loading, setLoading,
-      products, setProducts, addProduct, product
+      products, setProducts, addProduct, product,
+      edithundle, updateProduct, deleteProduct
     }}>
       {props.children}
     </myContext.Provider>
