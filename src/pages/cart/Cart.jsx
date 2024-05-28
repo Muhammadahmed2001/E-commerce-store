@@ -5,6 +5,8 @@ import Modal from "../../components/modal/Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { deleteFromCart } from "../../redux/cartSlice";
+import { addDoc, collection } from "firebase/firestore";
+import { fireDB } from "../../firebase/FirebaseConfig";
 
 function Cart() {
   const context = useContext(myContext);
@@ -17,25 +19,103 @@ function Cart() {
     toast.success("Delete Cart")
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems))
-   },[cartItems])
+  }, [cartItems])
 
-const [totalAmount , setTotalAmount] = useState(0)
+  const [totalAmount, setTotalAmount] = useState(0)
 
-useEffect(()=>{
-  let temp = 0
-  cartItems.forEach((cartItem)=>{
-    temp = temp + parseInt(cartItem.price)
-  })
-  setTotalAmount(temp)
+  useEffect(() => {
+    let temp = 0
+    cartItems.forEach((cartItem) => {
+      temp = temp + parseInt(cartItem.price)
+    })
+    setTotalAmount(temp)
 
-},[cartItems])
+  }, [cartItems])
 
-const shipping = parseInt(200)
+  const shipping = parseInt(200)
 
-const grandTotal = shipping + totalAmount
-console.log(grandTotal)
+  const grandTotal = shipping + totalAmount
+  const [name, setName] = useState("")
+  const [address, setAddress] = useState("");
+  const [pincode, setPincode] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const buyNow = async () => {
+    if (name === "" || address == "" || pincode == "" || phoneNumber == "") {
+      return toast.error("All fields are required", {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      })
+    }
+    const addressInfo = {
+      name,
+      address,
+      pincode,
+      phoneNumber,
+      date: new Date().toLocaleString(
+        "en-US",
+        {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }
+      )
+    }
+  }
+
+  var options = {
+    key: "",
+    key_secret: "",
+    amount: parseInt(grandTotal * 100),
+    currency: "PKR",
+    order_receipt: 'order_rcptid_' + name,
+    name: "Pretty Posh",
+    description: "for testing purpose",
+    handler: function (response) {
+      console.log(response)
+      toast.success('Payment Successful')
+      const paymentId = response.razorpay_payment_id
+      const orderInfo = {
+        cartItems,
+        addressInfo,
+        date: new Date().toLocaleString(
+          "en-US",
+          {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          }
+        ),
+        email: JSON.parse(localStorage.getItem("user")).user.email,
+        userid: JSON.parse(localStorage.getItem("user")).user.uid,
+        paymentId
+      }
+      try {
+        const orderRef = collection(fireDB, "order");
+        addDoc(orderRef, orderInfo)
+
+
+
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    theme: {
+      color: "#3399cc"
+    }
+  };
+
+  var pay = new window.Razorpay(options);
+  pay.open();
+  console.log(pay)
 
 
 
@@ -52,8 +132,9 @@ console.log(grandTotal)
         >
           <h1 className="mb-10 text-center text-2xl font-bold">Cart Items</h1>
           <div className="mx-auto max-w-5xl justify-center px-6 md:flex md:space-x-6 xl:px-0 ">
-            <div className="rounded-lg md:w-2/3 h-full overflow-y-auto max-h-[70vh]">
+            <div className={`rounded-lg md:w-2/3 h-full overflow-y-auto max-h-[70vh] border ${cartItems.length > 0 ? "drop-shadow-xl bg-white p-6" : ""}`} >
               {cartItems.map((item, index) => {
+                console.log(cartItems)
                 return (
                   <div
                     className="justify-between mb-6 rounded-lg border  drop-shadow-xl bg-white p-6  sm:flex  sm:justify-start"
@@ -164,7 +245,17 @@ console.log(grandTotal)
                 </div>
               </div>
               {/* <Modal  /> */}
-              <Modal />
+              <Modal
+                name={name}
+                address={address}
+                pincode={pincode}
+                phoneNumber={phoneNumber}
+                setName={setName}
+                setAddress={setAddress}
+                setPincode={setPincode}
+                setPhoneNumber={setPhoneNumber}
+                buyNow={buyNow}
+              />
             </div>
           </div>
         </div>

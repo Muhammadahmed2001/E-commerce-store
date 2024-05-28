@@ -12,7 +12,16 @@ function ProductCard() {
   console.log(cartItems)
   const addCart = (product) => {
     dispatch(addToCart(product))
-    toast.success("Add to cart")
+  toast.success("Add to Cart" , {
+    position: "top-right",
+    autoClose: 1000,
+    hideProgressBar: true,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+  })
   }
  useEffect(()=>{
   localStorage.setItem('cart', JSON.stringify(cartItems))
