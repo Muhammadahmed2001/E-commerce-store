@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import myContext from "./myContext";
-import { QuerySnapshot, Timestamp, addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
+import { QuerySnapshot, Timestamp, addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, query, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { fireDB } from "../../firebase/FirebaseConfig";
 
@@ -18,6 +18,8 @@ function MyState(props) {
   };
 
   const [loading, setLoading] = useState(false);
+  var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+
 
   const [products, setProducts] = useState({
     title: null,
@@ -33,7 +35,8 @@ function MyState(props) {
         day: "2-digit",
         year: "numeric"
       }
-    )
+    ),
+    paymentId: randLetter + Date.now(),
   });
 
   const addProduct = async () => {
@@ -105,7 +108,7 @@ function MyState(props) {
       setTimeout(() => {
         window.location.href = "/dashboard"
       }, 2000);
-      
+
 
     } catch (err) {
       console.log(err)
@@ -125,11 +128,56 @@ function MyState(props) {
 
   }
 
+
+  const [order, setOrder] = useState([])
+
+  const getOrderData = async () => {
+    setLoading(true)
+    try {
+      const result = await getDocs(collection(fireDB, "order"))
+      const ordersArry = []
+      result.forEach((doc) => {
+        ordersArry.push(doc.data());
+        setLoading(false)
+      });
+      setOrder(ordersArry)
+      setLoading(false)
+    } catch (error) {
+      console.log(error)
+      setLoading(false)
+    }
+  }
+
+
+
+
+  const [user, setUser] = useState([])
+  const getUserData = async () => {
+    setLoading(true)
+    try {
+      const result = await getDocs(collection(fireDB, "users"))
+      const usersArry = []
+      result.forEach((doc) => {
+        usersArry.push(doc.data())
+        setLoading(false)
+      })
+      setUser(usersArry)
+      setLoading(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    getOrderData()
+    getUserData()
+  }, [])
+
   return (
     <myContext.Provider value={{
       mode, toggleMode, loading, setLoading,
       products, setProducts, addProduct, product,
-      edithundle, updateProduct, deleteProduct
+      edithundle, updateProduct, deleteProduct, order, user
     }}>
       {props.children}
     </myContext.Provider>

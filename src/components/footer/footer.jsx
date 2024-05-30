@@ -117,7 +117,7 @@ function Footer() {
             </nav>
           </div>
           <div className="lg:w-1/4 md:w-1/2 w-full px-4">
-            <img src="https://ecommerce-sk.vercel.app/pay.png" alt="" />
+            <img src="https://cdn.pixabay.com/photo/2016/09/16/09/21/card-1673581_1280.png" alt="" />
           </div>
         </div>
       </div>

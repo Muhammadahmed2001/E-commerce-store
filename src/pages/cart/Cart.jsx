@@ -8,6 +8,9 @@ import { deleteFromCart } from "../../redux/cartSlice";
 import { addDoc, collection } from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig";
 
+
+
+
 function Cart() {
   const context = useContext(myContext);
   const { mode } = context;
@@ -16,7 +19,17 @@ function Cart() {
   const cartItems = useSelector((state) => state.cart)
   const deleteCart = (item) => {
     dispatch(deleteFromCart(item))
-    toast.success("Delete Cart")
+    toast.error("Delete Cart", {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    })
+
   }
 
   useEffect(() => {
@@ -52,8 +65,9 @@ function Cart() {
         draggable: true,
         progress: undefined,
         theme: "colored",
-      })
+      });
     }
+
     const addressInfo = {
       name,
       address,
@@ -67,55 +81,34 @@ function Cart() {
           year: "numeric",
         }
       )
-    }
-  }
-
-  var options = {
-    key: "",
-    key_secret: "",
-    amount: parseInt(grandTotal * 100),
-    currency: "PKR",
-    order_receipt: 'order_rcptid_' + name,
-    name: "Pretty Posh",
-    description: "for testing purpose",
-    handler: function (response) {
-      console.log(response)
-      toast.success('Payment Successful')
-      const paymentId = response.razorpay_payment_id
-      const orderInfo = {
-        cartItems,
-        addressInfo,
-        date: new Date().toLocaleString(
-          "en-US",
-          {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          }
-        ),
-        email: JSON.parse(localStorage.getItem("user")).user.email,
-        userid: JSON.parse(localStorage.getItem("user")).user.uid,
-        paymentId
-      }
-      try {
-        const orderRef = collection(fireDB, "order");
-        addDoc(orderRef, orderInfo)
+    };
 
 
+    const orderInfo = {
+      cartItems,
+      addressInfo,
+      date: new Date().toLocaleString(
+        "en-US",
+        {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        }
+      ),
+      email: JSON.parse(localStorage.getItem("user")).user.email,
+      userid: JSON.parse(localStorage.getItem("user")).user.uid,
 
-      } catch (error) {
-        console.log(error)
-      }
-    },
+    };
 
-    theme: {
-      color: "#3399cc"
+    try {
+      const orderRef = collection(fireDB, "order");
+      await addDoc(orderRef, orderInfo);
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  var pay = new window.Razorpay(options);
-  pay.open();
-  console.log(pay)
+
 
 
 
@@ -132,7 +125,7 @@ function Cart() {
         >
           <h1 className="mb-10 text-center text-2xl font-bold">Cart Items</h1>
           <div className="mx-auto max-w-5xl justify-center px-6 md:flex md:space-x-6 xl:px-0 ">
-            <div className={`rounded-lg md:w-2/3 h-full overflow-y-auto max-h-[70vh] border ${cartItems.length > 0 ? "drop-shadow-xl bg-white p-6" : ""}`} >
+            <div className={`rounded-lg md:w-2/3 h-full overflow-y-auto max-h-[70vh] ${cartItems.length > 0 ? "border drop-shadow-xl bg-white p-6" : ""}`} >
               {cartItems.map((item, index) => {
                 console.log(cartItems)
                 return (
