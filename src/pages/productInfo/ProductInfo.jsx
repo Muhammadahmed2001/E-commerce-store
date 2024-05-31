@@ -1,7 +1,61 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Layout from "../../components/layout/layout";
+import myContext from "../../context/data/myContext";
+import { useParams } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { fireDB } from "../../firebase/FirebaseConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../../redux/cartSlice";
+import { toast } from "react-toastify";
 
 function ProductInfo() {
+  const context = useContext(myContext)
+  const { loading, setLoading } = context
+  const [products, setProducts] = useState("")
+  const id = useParams().id
+
+
+  const getProductData = async () => {
+    setLoading(true)
+    try {
+      const productTemp = await getDoc(doc(fireDB, "products", id))
+      setProducts(productTemp.data())
+      setLoading(false)
+    } catch (error) {
+      setLoading(false)
+      console.log(error)
+
+    }
+
+
+
+  }
+
+  useEffect(() => {
+    getProductData()
+  }, [])
+
+
+  const dispatch = useDispatch()
+  const cartItems = useSelector((state) => state.cart)
+
+  const addCart = (products) => {
+    dispatch(addToCart(products))
+    toast.success("Add to Cart", {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    })
+  }
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems))
+  })
+
   return (
     <Layout>
       <section className="text-gray-600 body-font overflow-hidden">
@@ -10,14 +64,14 @@ function ProductInfo() {
             <img
               alt="ecommerce"
               className="lg:w-1/2 w-full lg:h-auto h-64 object-cover object-center rounded"
-              src="https://dummyimage.com/400x400"
+              src={products.imageUrl}
             />
             <div className="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
               <h2 className="text-sm title-font text-gray-500 tracking-widest">
                 BRAND NAME
               </h2>
               <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">
-                The Catcher in the Rye
+                {products.title}
               </h1>
               <div className="flex mb-4">
                 <span className="flex items-center">
@@ -118,19 +172,14 @@ function ProductInfo() {
                 </span>
               </div>
               <p className="leading-relaxed border-b-2 mb-5 pb-5">
-                Fam locavore kickstarter distillery. Mixtape chillwave tumeric
-                sriracha taximy chia microdosing tilde DIY. XOXO fam indxgo
-                juiceramps cornhole raw denim forage brooklyn. Everyday carry +1
-                seitan poutine tumeric. Gastropub blue bottle austin listicle
-                pour-over, neutra jean shorts keytar banjo tattooed umami
-                cardigan.
+                {products.discription}
               </p>
 
               <div className="flex">
                 <span className="title-font font-medium text-2xl text-gray-900">
-                  $58.00
+                  RS: {products.price}
                 </span>
-                <button className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
+                <button onClick={() => addCart(products)} className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
                   Add To Cart
                 </button>
                 <button className="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">

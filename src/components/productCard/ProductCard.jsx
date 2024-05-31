@@ -6,26 +6,27 @@ import { toast } from "react-toastify";
 
 function ProductCard() {
   const context = useContext(myContext)
-  const { mode, product } = context
+  const { mode, product, searchkey, setSearchkey, filterType, setFilterType,
+    filterPrice, setFilterPrice } = context
   const dispatch = useDispatch()
   const cartItems = useSelector((state) => state.cart)
   console.log(cartItems)
   const addCart = (product) => {
     dispatch(addToCart(product))
-  toast.success("Add to Cart" , {
-    position: "top-right",
-    autoClose: 1000,
-    hideProgressBar: true,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "colored",
-  })
+    toast.success("Add to Cart", {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    })
   }
- useEffect(()=>{
-  localStorage.setItem('cart', JSON.stringify(cartItems))
- })
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems))
+  })
 
 
 
@@ -49,9 +50,9 @@ function ProductCard() {
         <div className="flex flex-wrap -m-4">
 
 
-          {product.map((item, index) => {
+          {product.filter((obj) => obj.title.toLowerCase().includes(searchkey)).filter((obj) => obj.category.includes(filterType)).filter((obj) => obj.price.includes(filterPrice)).map((item, index) => {
             return (
-              <div className="p-4 md:w-1/4  drop-shadow-lg ">
+              <div onClick={() => window.location.href = `/productinfo/${item.id}`} className="p-4 md:w-1/4  drop-shadow-lg ">
                 <div
                   className="h-full border-2 hover:shadow-gray-100 hover:shadow-2xl transition-shadow duration-300 ease-in-out    border-gray-200 border-opacity-60 rounded-2xl overflow-hidden"
                   style={{
