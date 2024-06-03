@@ -27,13 +27,6 @@ function ProductCard() {
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems))
   })
-
-
-
-
-
-
-
   return (
     <section className="text-gray-600 body-font">
       <div className="container px-5 py-8 md:py-16 mx-auto">
@@ -50,7 +43,7 @@ function ProductCard() {
         <div className="flex flex-wrap -m-4">
 
 
-          {product.filter((obj) => obj.title.toLowerCase().includes(searchkey)).filter((obj) => obj.category.includes(filterType)).filter((obj) => obj.price.includes(filterPrice)).map((item, index) => {
+          {product.filter((obj) => obj.title.toLowerCase().includes(searchkey)).filter((obj) => obj.category.includes(filterType)).filter((obj) => obj.price.includes(filterPrice)).slice(0,8).map((item, index) => {
             return (
               <div onClick={() => window.location.href = `/productinfo/${item.id}`} className="p-4 md:w-1/4  drop-shadow-lg ">
                 <div
