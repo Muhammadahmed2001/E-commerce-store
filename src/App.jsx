@@ -11,7 +11,7 @@ import ProductInfo from "./pages/productInfo/ProductInfo";
 
 import UpdateProdect from "./pages/admin/page/UpdateProdect";
 import AddProduct from "./pages/admin/page/Addproduct";
-import SignUp from "./pages/registration/SignUp";
+import SignUp from "./pages/registration/Signup";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/registration/Login";
